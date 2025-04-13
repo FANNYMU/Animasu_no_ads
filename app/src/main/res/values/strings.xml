@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Animasu</string>
+    <string name="loading">Memuat...</string>
+    <string name="error_title">Konten Diblokir</string>
+    <string name="error_message">Konten ini diblokir karena terdeteksi sebagai iklan yang tidak sesuai.</string>
+    <string name="back_to_home">Kembali ke Beranda</string>
+    <string name="no_connection">Tidak ada koneksi internet</string>
+    <string name="retry">Coba Lagi</string>
+    <string name="blocked_url">URL Diblokir</string>
+    <string name="blocked_ad">Iklan Diblokir</string>
+</resources>
