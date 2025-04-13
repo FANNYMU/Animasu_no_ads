@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         // Script untuk menghapus iklan dan mencegah munculnya kembali
         String script = 
                 "javascript:(function() {" +
-                "   // Fungsi untuk menghapus elemen iklan" +
+                "   // Fungsi untuk menghapus dan menyembunyikan elemen iklan" +
                 "   function removeAds() {" +
                 "       // Hapus elemen dengan class lmd-iklan" +
                 "       var elements = document.getElementsByClassName('lmd-iklan');" +
@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 "       " +
                 "       // Hapus semua elemen yang terkait dengan iklan" +
                 "       var selectors = [" +
+                "           '.blox', '.kln'," + // Tambahan untuk blox dan kln
                 "           '[id*=\"iklan\"]', '[class*=\"iklan\"]'," +
                 "           '[class*=\"banner\"]', '[id*=\"banner\"]'," +
                 "           'iframe[src*=\"doubleclick\"]', 'iframe[src*=\"googlesyndication\"]'," +
@@ -131,22 +132,34 @@ public class MainActivity extends AppCompatActivity {
                 "           '[id*=\"togel\"]', '[class*=\"togel\"]'," +
                 "           '[id*=\"bet\"]', '[class*=\"bet\"]'," +
                 "           '[id*=\"casino\"]', '[class*=\"casino\"]'," +
-                "           '#floatcenter', '.floatcenter'," + // Tambahan untuk floatcenter
-                "           '[id*=\"float\"]', '[class*=\"float\"]'" + // Blokir semua elemen floating
+                "           '#floatcenter', '.floatcenter'," +
+                "           '[id*=\"float\"]', '[class*=\"float\"]'" +
                 "       ];" +
                 "       " +
                 "       selectors.forEach(function(selector) {" +
                 "           document.querySelectorAll(selector).forEach(function(element) {" +
-                "               if (element && element.parentNode) {" +
-                "                   element.style.display = 'none';" +
-                "                   element.parentNode.removeChild(element);" +
+                "               if (element) {" +
+                "                   // Set display none dan pointer-events none" +
+                "                   element.style.cssText = 'display: none !important; pointer-events: none !important; visibility: hidden !important; opacity: 0 !important; height: 0 !important; width: 0 !important; position: absolute !important; z-index: -9999 !important;';" +
+                "                   if (element.parentNode) {" +
+                "                       element.parentNode.removeChild(element);" +
+                "                   }" +
                 "               }" +
                 "           });" +
                 "       });" +
                 "   }" +
                 "   " +
+                "   // Fungsi untuk memastikan elemen tetap tersembunyi" +
+                "   function keepHidden() {" +
+                "       removeAds();" +
+                "       requestAnimationFrame(keepHidden);" + // Loop menggunakan requestAnimationFrame
+                "   }" +
+                "   " +
                 "   // Jalankan penghapusan iklan segera" +
                 "   removeAds();" +
+                "   " +
+                "   // Mulai loop untuk tetap menyembunyikan" +
+                "   keepHidden();" +
                 "   " +
                 "   // Tambahkan MutationObserver untuk mendeteksi dan menghapus iklan baru" +
                 "   var observer = new MutationObserver(function(mutations) {" +
@@ -157,11 +170,21 @@ public class MainActivity extends AppCompatActivity {
                 "       });" +
                 "   });" +
                 "   " +
-                "   // Konfigurasi observer" +
+                "   // Konfigurasi observer dengan opsi yang lebih lengkap" +
                 "   observer.observe(document.body, {" +
                 "       childList: true," +
-                "       subtree: true" +
+                "       subtree: true," +
+                "       attributes: true," +
+                "       attributeFilter: ['style', 'class']" + // Pantau perubahan style dan class
                 "   });" +
+                "   " +
+                "   // Override CSS untuk memastikan elemen tetap tersembunyi" +
+                "   var style = document.createElement('style');" +
+                "   style.textContent = `" +
+                "       .blox, .kln { display: none !important; pointer-events: none !important; visibility: hidden !important; opacity: 0 !important; }" +
+                "       [class*=\"iklan\"], [id*=\"iklan\"], .blox, .kln { height: 0 !important; width: 0 !important; position: absolute !important; z-index: -9999 !important; }" +
+                "   `;" +
+                "   document.head.appendChild(style);" +
                 "   " +
                 "   // Override fungsi yang biasa digunakan untuk menampilkan iklan" +
                 "   window.addEventListener('DOMContentLoaded', function() {" +
@@ -192,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
                 "           var originalSetAttribute = element.setAttribute;" +
                 "           element.setAttribute = function(name, value) {" +
                 "               if (value && (value.includes('ads') || value.includes('iklan') || " +
-                "                   value.includes('banner') || value.includes('float'))) {" +
+                "                   value.includes('banner') || value.includes('float') || " +
+                "                   value.includes('blox') || value.includes('kln'))) {" +
                 "                   return;" +
                 "               }" +
                 "               originalSetAttribute.call(element, name, value);" +
@@ -200,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 "       }" +
                 "       return element;" +
                 "   };" +
-                "   console.log('Ad blocking script installed successfully');" +
+                "   console.log('Enhanced ad blocking script installed successfully');" +
                 "})()";
         
         webView.evaluateJavascript(script, null);
